@@ -1,17 +1,21 @@
 from pathlib import Path
 from llama_cloud import LlamaCloud
 import os
+from dotenv import load_dotenv
 
-client = LlamaCloud(os.getenv(LLAMA_CLOUD_API))
+load_dotenv()
 
-PDF_PATH = "PDF_RAG_Pipeline/sample-tables.pdf"
 
-file_obj = client.files.create(file="/home/rogue/RAG/PDF_RAG_Pipeline/sample-tables.pdf", purpose="parse")
+client = LlamaCloud(api_key = os.getenv("LLAMA_CLOUD_API_KEY"))
+
+PDF_PATH = "data/sample-tables.pdf"
+
+file_obj = client.files.create(file=PDF_PATH, purpose="parse")
 
 
 result = client.parsing.parse(
     file_id=file_obj.id,
-    
+
     tier="agentic",
     
 
