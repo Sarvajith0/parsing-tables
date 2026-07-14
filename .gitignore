@@ -4,3 +4,5 @@ module_02_document_processing_and_chunking
 .env
 uploads
 morpheme-lexeme-analysis-v2.md
+__pycache__
+outputs
