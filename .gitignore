@@ -6,3 +6,4 @@ uploads
 morpheme-lexeme-analysis-v2.md
 __pycache__
 outputs
+.gitignore
