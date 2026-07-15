@@ -1,34 +1,45 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>File Processor</title>
+
+    <title>PDF Parser</title>
+
     <link rel="stylesheet" href="/static/style.css">
+
 </head>
 
 <body>
 
-<h1>Document Processor</h1>
-
-<form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" name="file" required>
-    <button type="submit">Upload</button>
-</form>
-
 <div class="container">
 
-    <div class="column">
-        <h2>Input File</h2>
-        <table id="inputTable"></table>
-    </div>
+    <h1>PDF Parser</h1>
 
-    <div class="column">
-        <h2>Processed Output</h2>
-        <table id="outputTable"></table>
-    </div>
+    <input
+        type="file"
+        id="pdf"
+        accept=".pdf"
+    >
+
+    <button id="uploadBtn">
+        Upload
+    </button>
+
+    <div id="status"></div>
+
+    <div class="spinner" id="spinner"></div>
+
+    <a
+        id="downloadBtn"
+        class="hidden"
+    >
+        Download Markdown
+    </a>
 
 </div>
 
 <script src="/static/script.js"></script>
 
 </body>
+
 </html>

@@ -27,7 +27,7 @@ def process_pdf(pdf_path):
         except Exception as e:
                 print(f"Parse failed: {e}")
                 raise
-    output_path = "outputs/output.md"
+    output_path = "parsed/output.md"
     Path(output_path).parent.mkdir(exist_ok=True)
     Path(output_path).write_text(result.markdown_full or "")
 

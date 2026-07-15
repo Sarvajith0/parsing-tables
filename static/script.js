@@ -1,41 +1,94 @@
-document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+const uploadBtn = document.getElementById("uploadBtn");
 
-    e.preventDefault();
+const pdf = document.getElementById("pdf");
 
-    const formData = new FormData(e.target);
+const spinner = document.getElementById("spinner");
 
-    const response = await fetch("/upload", {
-        method: "POST",
-        body: formData
-    });
+const status = document.getElementById("status");
 
-    const data = await response.json();
+const downloadBtn = document.getElementById("downloadBtn");
 
-    displayTable("inputTable", data.input);
-    displayTable("outputTable", data.output);
+const messages = [
 
-});
+    "Uploading PDF...",
 
-function displayTable(id, rows){
+    "Extracting text...",
 
-    const table = document.getElementById(id);
+    "Reading tables...",
 
-    table.innerHTML = "";
+    "Generating Markdown...",
 
-    rows.forEach(row=>{
+    "Almost done..."
 
-        const tr=document.createElement("tr");
+];
 
-        row.forEach(cell=>{
+let interval;
 
-            const td=document.createElement("td");
-            td.textContent=cell;
-            tr.appendChild(td);
+
+uploadBtn.onclick = async () => {
+
+    if(pdf.files.length===0){
+
+        alert("Choose a PDF first.");
+
+        return;
+
+    }
+
+    uploadBtn.disabled=true;
+
+    spinner.style.display="block";
+
+    let i=0;
+
+    status.innerText=messages[0];
+
+    interval=setInterval(()=>{
+
+        i=(i+1)%messages.length;
+
+        status.innerText=messages[i];
+
+    },1500);
+
+    const formData=new FormData();
+
+    formData.append("file",pdf.files[0]);
+
+    try{
+
+        const response=await fetch("/upload",{
+
+            method:"POST",
+
+            body:formData
 
         });
 
-        table.appendChild(tr);
+        const data=await response.json();
 
-    });
+        clearInterval(interval);
+
+        spinner.style.display="none";
+
+        status.innerText="✔ Parsing Complete!";
+
+        downloadBtn.href="/download/"+data.filename;
+
+        downloadBtn.classList.remove("hidden");
+
+    }
+
+    catch(err){
+
+        clearInterval(interval);
+
+        spinner.style.display="none";
+
+        status.innerText="Something went wrong.";
+
+    }
+
+    uploadBtn.disabled=false;
 
 }

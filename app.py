@@ -1,36 +1,72 @@
-from flask import Flask, render_template, request, jsonify
-from processor import process_pdf
 from pathlib import Path
-import os
+import shutil
 
-app = Flask(__name__)
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
 
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Import your processor
+from processor import process_pdf
 
+UPLOAD_FOLDER = Path("uploads")
+PARSED_FOLDER = Path("parsed")
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+UPLOAD_FOLDER.mkdir(exist_ok=True)
+PARSED_FOLDER.mkdir(exist_ok=True)
 
+app = FastAPI()
 
-@app.route("/upload", methods=["POST"])
-def upload():
-    file = request.files["file"]
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-    pdf_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(pdf_path)
-
-    # Generate the markdown file
-    md_path = process_pdf(pdf_path)
-
-    # Read the generated markdown
-    markdown = Path(md_path).read_text()
-
-    return jsonify({
-        "markdown": markdown
-    })
+templates = Jinja2Templates(directory="templates")
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse(
+    request=request,
+    name="index.html",
+    context={}
+)
+
+
+@app.post("/upload")
+async def upload(file: UploadFile = File(...)):
+
+    pdf_path = UPLOAD_FOLDER / file.filename
+
+    with open(pdf_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    ########################################################
+    # Call YOUR parser here.
+    #
+    # Example:
+    #
+    # md_path = process_pdf(pdf_path)
+    #
+    # It should return the markdown file path.
+    ########################################################
+
+    md_path = process_pdf(str(pdf_path))
+
+    return JSONResponse(
+        {
+            "success": True,
+            "filename": Path(md_path).name,
+        }
+    )
+
+
+@app.get("/download/{filename}")
+async def download(filename: str):
+
+    file_path = PARSED_FOLDER / filename
+
+    return FileResponse(
+        path=file_path,
+        media_type="text/markdown",
+        filename=filename,
+    )
