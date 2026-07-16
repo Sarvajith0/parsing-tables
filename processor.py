@@ -20,6 +20,9 @@ def process_pdf(pdf_path):
                     "markdown": {
                         "annotate_links": True,
                         "inline_images": True,
+
+                        "tables" : {"compact_markdown_tables": True,"output_tables_as_markdown": False},
+                        #  "tables" : {"output_tables_as_markdown": True} Only use for page 1
                     }
                 },
                 expand=["markdown_full"],
